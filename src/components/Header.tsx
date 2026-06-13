@@ -9,7 +9,6 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ onSearch, currentPage, onNavigate }) => {
   const [query, setQuery] = useState('');
   const [scrolled, setScrolled] = useState(false);
-  const [mobileMenu, setMobileMenu] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -31,13 +30,13 @@ const Header: React.FC<HeaderProps> = ({ onSearch, currentPage, onNavigate }) =>
     { id: 'home', label: 'Start' },
     { id: 'movies', label: 'Filme' },
     { id: 'series', label: 'Serien' },
-    { id: 'sport', label: 'Sport' },
+    { id: 'sport', label: 'Sport ⚽' },
   ];
 
   return (
     <header className={`header ${scrolled ? 'scrolled' : ''}`}>
       <div className="header-inner">
-        <div className="logo" onClick={() => { onNavigate('home'); setMobileMenu(false); }}>
+        <div className="logo" onClick={() => onNavigate('home')}>
           <div className="logo-flag">
             <svg viewBox="0 0 90 60" xmlns="http://www.w3.org/2000/svg">
               <rect width="90" height="20" fill="#CE1126"/>
@@ -52,12 +51,12 @@ const Header: React.FC<HeaderProps> = ({ onSearch, currentPage, onNavigate }) =>
           </div>
         </div>
 
-        <nav className={`nav ${mobileMenu ? 'open' : ''}`}>
+        <nav className="nav">
           {navItems.map(item => (
             <button
               key={item.id}
               className={`nav-link ${currentPage === item.id ? 'active' : ''}`}
-              onClick={() => { onNavigate(item.id); setMobileMenu(false); }}
+              onClick={() => onNavigate(item.id)}
             >
               {item.label}
             </button>
@@ -80,12 +79,6 @@ const Header: React.FC<HeaderProps> = ({ onSearch, currentPage, onNavigate }) =>
             </svg>
           </button>
         </form>
-
-        <button className="mobile-menu-btn" onClick={() => setMobileMenu(!mobileMenu)}>
-          <span className={`hamburger ${mobileMenu ? 'open' : ''}`}>
-            <span/><span/><span/>
-          </span>
-        </button>
       </div>
     </header>
   );
