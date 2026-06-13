@@ -28,9 +28,9 @@ const Header: React.FC<HeaderProps> = ({ onSearch, currentPage, onNavigate }) =>
 
   const navItems = [
     { id: 'home', label: 'Start' },
+    { id: 'sport', label: 'Sport ⚽' },
     { id: 'movies', label: 'Filme' },
     { id: 'series', label: 'Serien' },
-    { id: 'sport', label: 'Sport ⚽' },
   ];
 
   return (
