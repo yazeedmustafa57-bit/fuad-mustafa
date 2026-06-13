@@ -17,6 +17,7 @@ const SportPage: React.FC = () => {
         }}
         title="Sport Live"
         allow="autoplay; fullscreen"
+        allowFullScreen
         sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
       />
     </div>
