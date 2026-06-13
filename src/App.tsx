@@ -2,8 +2,9 @@ import React, { useState, useCallback } from 'react';
 import Header from './components/Header';
 import ContentGrid from './pages/ContentGrid';
 import WatchPage from './pages/WatchPage';
+import SportPage from './pages/SportPage';
 
-type Page = 'home' | 'movies' | 'series' | 'search';
+type Page = 'home' | 'movies' | 'series' | 'search' | 'sport';
 
 const App: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<Page>('home');
@@ -76,6 +77,7 @@ const App: React.FC = () => {
         {currentPage === 'movies' && <ContentGrid type="movies" onSelect={handleSelect} />}
         {currentPage === 'series' && <ContentGrid type="series" onSelect={handleSelect} />}
         {currentPage === 'search' && <ContentGrid type="search" searchQuery={searchQuery} onSelect={handleSelect} />}
+        {currentPage === 'sport' && <SportPage />}
       </main>
       <footer className="footer">
         <div className="footer-inner">

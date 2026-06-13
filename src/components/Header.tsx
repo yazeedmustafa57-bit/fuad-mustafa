@@ -31,6 +31,7 @@ const Header: React.FC<HeaderProps> = ({ onSearch, currentPage, onNavigate }) =>
     { id: 'home', label: 'Start' },
     { id: 'movies', label: 'Filme' },
     { id: 'series', label: 'Serien' },
+    { id: 'sport', label: 'Sport' },
   ];
 
   return (
