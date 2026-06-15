@@ -31,8 +31,8 @@ const Header: React.FC<HeaderProps> = ({ onSearch, currentPage, onNavigate }) =>
     { id: 'sport', label: 'Sport ⚽' },
     { id: 'movies', label: 'Filme' },
     { id: 'series', label: 'Serien' },
-    { id: 'series', label: 'Serien' },
     { id: 'settings', label: '🔇' },
+  ];
 
   return (
     <header className={`header ${scrolled ? 'scrolled' : ''}`}>
