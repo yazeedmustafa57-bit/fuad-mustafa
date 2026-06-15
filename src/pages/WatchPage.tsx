@@ -7,10 +7,9 @@ interface WatchPageProps {
 }
 
 const EMBED_SOURCES = [
-  { name: 'Server 1', url: (id: number, type: string) => `https://vidsrc.icu/embed/${type}/${id}` },
-  { name: 'Server 2', url: (id: number, type: string) => `https://embed.su/embed/${type}/${id}` },
-  { name: 'Server 3', url: (id: number, type: string) => `https://player.autoembed.cc/embed/${type}/${id}` },
-  { name: 'Server 4', url: (id: number, type: string) => `https://vidsrc.cc/v2/embed/${type}/${id}` },
+  { name: 'Server 1', url: (id: number, type: string) => `https://vidsrc.to/embed/${type}/${id}` },
+  { name: 'Server 2', url: (id: number, _type: string) => `https://multiembed.mov/directstream.php?video_id=${id}&tmdb=1` },
+  { name: 'Server 3', url: (id: number, type: string) => `https://www.2embed.cc/embed/${type}/${id}` },
 ];
 
 const WatchPage: React.FC<WatchPageProps> = ({ item, onBack }) => {
