@@ -3,8 +3,9 @@ import Header from './components/Header';
 import ContentGrid from './pages/ContentGrid';
 import WatchPage from './pages/WatchPage';
 import SportPage from './pages/SportPage';
+import AdblockInfo from './pages/AdblockInfo';
 
-type Page = 'home' | 'movies' | 'series' | 'search' | 'sport';
+type Page = 'home' | 'movies' | 'series' | 'search' | 'sport' | 'settings';
 
 const App: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<Page>('home');
@@ -78,6 +79,7 @@ const App: React.FC = () => {
         {currentPage === 'series' && <ContentGrid type="series" onSelect={handleSelect} />}
         {currentPage === 'search' && <ContentGrid type="search" searchQuery={searchQuery} onSelect={handleSelect} />}
         {currentPage === 'sport' && <SportPage />}
+        {currentPage === 'settings' && <AdblockInfo />}
       </main>
       <footer className="footer">
         <div className="footer-inner">
