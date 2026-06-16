@@ -1,39 +1,14 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
-// hits.sh zeigt "hits: X" als SVG-Badge – via <img> kein CORS-Problem
+// hits.sh liefert SVG-Badge – als <img> geladen funktioniert CORS-frei
 const HITS_URL = 'https://hits.sh/yazeedmustafa57-bit.github.io/fuad-mustafa/hits.svg';
 
 const LiveCounter: React.FC = () => {
-  const [visitors, setVisitors] = useState<number | null>(null);
   const [online, setOnline] = useState<number | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
+  const imgRef = useRef<HTMLImageElement>(null);
 
-  useEffect(() => {
-    // hits.sh Wert per fetch (mit Proxy) auslesen, Fallback auf <img>
-    const fetchWithProxy = async () => {
-      try {
-        // CORS-Proxy um SVG zu parsen
-        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(HITS_URL)}`;
-        const res = await fetch(proxyUrl);
-        const svg = await res.text();
-        const match = svg.match(/hits:\s*(\d+)/i);
-        if (match) {
-          setVisitors(parseInt(match[1], 10));
-          return;
-        }
-      } catch {
-        // Proxy nicht erreichbar
-      }
-      // Fallback: null, dann zeigen wir das <img>
-      setVisitors(null);
-    };
-
-    fetchWithProxy();
-    const interval = setInterval(fetchWithProxy, 120000);
-    return () => clearInterval(interval);
-  }, []);
-
-  // WebSocket-Verbindung für Online-Zähler
+  // WebSocket für Online-Zähler (optional – nur wenn Server deployed)
   useEffect(() => {
     const wsUrl = getWsUrl();
     if (!wsUrl) return;
@@ -44,7 +19,7 @@ const LiveCounter: React.FC = () => {
     function connect() {
       if (!mounted) return;
       try {
-        const ws = new WebSocket(wsUrl!);
+        const ws = new WebSocket(wsUrl as string);
         wsRef.current = ws;
 
         ws.onopen = () => {
@@ -71,7 +46,6 @@ const LiveCounter: React.FC = () => {
       } catch {}
     }
 
-    // Heartbeat alle 25s
     const heartbeat = setInterval(() => {
       if (wsRef.current?.readyState === WebSocket.OPEN) {
         wsRef.current.send(JSON.stringify({ type: 'ping' }));
@@ -95,7 +69,6 @@ const LiveCounter: React.FC = () => {
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
       return 'ws://localhost:3001/ws';
     }
-    // Nach Deployment: hier die WebSocket-URL eintragen oder via env
     return null;
   }
 
@@ -103,14 +76,15 @@ const LiveCounter: React.FC = () => {
     <span className="live-counter" title="Besucher">
       <span className="live-dot" />
       <span className="live-text">
-        {visitors !== null ? (
-          <>{visitors.toLocaleString()} Besucher</>
-        ) : (
-          <img src={HITS_URL} alt="Besucher" className="hits-badge" />
-        )}
+        <img
+          ref={imgRef}
+          src={HITS_URL}
+          alt="Besucher"
+          className="hits-badge"
+        />
         {online !== null && (
           <span className="live-online">
-            <span className="online-dot" /> {online} online
+            <span className="online-dot" /> <span className="online-count">{online}</span> online
           </span>
         )}
       </span>
