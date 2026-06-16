@@ -45,7 +45,6 @@ const App: React.FC = () => {
         onNavigate={handleNavigate}
       />
       <main className="main">
-<div id="visitor-counter" style={{textAlign: "center", padding: "4px 0 0", fontSize: "0.75rem", color: "var(--text-muted)", position: "relative", top: "72px"}}></div>
         {currentPage === 'home' && (
           <>
             <section className="hero-section">
