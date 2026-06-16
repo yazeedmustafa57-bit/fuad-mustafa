@@ -1,73 +1,31 @@
-# React + TypeScript + Vite
+# Fuad Mustafa - Movies & TV Series Streaming
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Live Besucherzähler aktivieren
 
-Currently, two official plugins are available:
+Um den **Live "Online jetzt" Zähler** zu aktivieren, muss der WebSocket-Server auf **Render** (kostenlos) deployed werden:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+### Einmalige Einrichtung (2 Minuten):
 
-## React Compiler
+1. Gehe zu **https://dashboard.render.com** und registriere dich mit **GitHub** (kostenlos, keine Kreditkarte)
+2. Klicke auf **"New +" → "Web Service"**
+3. Wähle dein GitHub Repository: `yazeedmustafa57-bit/fuad-mustafa`
+4. Render erkennt automatisch:
+   - **Root Directory:** `server`
+   - **Start Command:** `node index.js`
+5. Klicke **"Create Web Service"**
+6. Nach ~2 Minuten ist der Server live unter: `https://fuad-mustafa-live.onrender.com`
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Nach dem Deployment:
 
-## Expanding the ESLint configuration
+Sobald der Server läuft, aktualisiere ich die WebSocket-URL im React-Code, damit deine Seite die "Online jetzt" Zahlen anzeigt.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+---
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### Entwicklung
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run build    # Build für Produktion
+cp -r dist/ docs/
+git push
 ```
