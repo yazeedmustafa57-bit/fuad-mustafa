@@ -4,6 +4,7 @@ import ContentGrid from './pages/ContentGrid';
 import WatchPage from './pages/WatchPage';
 import SportPage from './pages/SportPage';
 import AdblockInfo from './pages/AdblockInfo';
+import TikTokEmbed from './components/TikTokEmbed';
 
 type Page = 'home' | 'movies' | 'series' | 'search' | 'sport' | 'settings';
 
@@ -73,6 +74,7 @@ const App: React.FC = () => {
               </div>
               <ContentGrid type="trending" onSelect={handleSelect} />
             </section>
+            <TikTokEmbed />
           </>
         )}
         {currentPage === 'movies' && <ContentGrid type="movies" onSelect={handleSelect} />}
