@@ -6,7 +6,8 @@ const SportPage: React.FC = () => {
       padding: '0',
       height: 'calc(100vh - 72px)',
       marginTop: '72px',
-      overflow: 'hidden'
+      overflow: 'hidden',
+      position: 'relative',
     }}>
       <iframe
         src="https://www.freekora.com"
@@ -14,8 +15,8 @@ const SportPage: React.FC = () => {
           width: '100%',
           height: '100%',
           border: 'none',
-        }}
-        title="Sport Live"
+        } as React.CSSProperties}
+        title="Live Sport Streams"
         allow="autoplay; fullscreen"
         allowFullScreen
         sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
