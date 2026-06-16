@@ -16,14 +16,14 @@
   </head>
   <body>
     <div id="root"></div>
-<div id="visitor-counter" style="text-align:center;padding:4px 0 0;font-size:0.75rem;color:#606078;position:fixed;top:72px;left:0;right:0;z-index:99;background:rgba(10,10,15,0.8);backdrop-filter:blur(8px);"></div>
+<div style="text-align:center;padding:6px 0 2px;font-size:0.8rem;color:#606078;position:fixed;top:72px;left:0;right:0;z-index:99;background:rgba(10,10,15,0.85);backdrop-filter:blur(8px);">
+👁️ Besucher: <img src="https://hits.sh/fuad-mustafa.github.io/hits.svg?style=for-the-badge<div id="root"></div>label=⏺<div id="root"></div>color=CE1126" alt="Besucher" style="display:inline;vertical-align:middle;height:20px;" />
+</div>
   </body>
 </html>
   <script>
-  fetch('https://api.countapi.xyz/hit/fuad-mustafa/visits')
     .then(r => r.json())
     .then(d => {
-      const el = document.getElementById('visitor-counter');
       if (el) el.textContent = '👁️ ' + d.value.toLocaleString() + ' Besucher';
     })
     .catch(() => {});
