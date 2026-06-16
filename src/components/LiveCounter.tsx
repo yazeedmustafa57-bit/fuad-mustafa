@@ -1,22 +1,25 @@
 import React, { useEffect, useState, useRef } from 'react';
 
-const WS_URL = 'wss://fuad-mustafa-live.onrender.com/ws';
 const HITS_URL = 'https://hits.sh/yazeedmustafa57-bit.github.io/fuad-mustafa/hits.svg';
 
 const LiveCounter: React.FC = () => {
   const [online, setOnline] = useState<number | null>(null);
   const [visitors, setVisitors] = useState<number | null>(null);
   const [connected, setConnected] = useState(false);
-  const wsRef = useRef<WebSocket | null>(null);
+  const wsRef = useRef<any>(null);
   const pingRef = useRef<any>(null);
 
   useEffect(() => {
     let mounted = true;
+    let reconnectTimer: any = null;
 
     const connectWs = () => {
       if (!mounted) return;
       try {
-        const ws = new WebSocket(WS_URL);
+        // Use wss:// protocol - secure WebSocket
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const host = 'fuad-mustafa-live.onrender.com';
+        const ws = new WebSocket(`${protocol}//${host}/ws`);
         wsRef.current = ws;
 
         ws.onopen = () => {
@@ -24,7 +27,7 @@ const LiveCounter: React.FC = () => {
           setConnected(true);
         };
 
-        ws.onmessage = (event) => {
+        ws.onmessage = (event: MessageEvent) => {
           if (!mounted) return;
           try {
             const data = JSON.parse(event.data);
@@ -37,16 +40,13 @@ const LiveCounter: React.FC = () => {
         ws.onclose = () => {
           if (!mounted) return;
           setConnected(false);
-          // Reconnect after 5 seconds
-          setTimeout(connectWs, 5000);
+          reconnectTimer = setTimeout(connectWs, 5000);
         };
 
         ws.onerror = () => {
           ws.close();
         };
-      } catch {
-        // WebSocket not available
-      }
+      } catch {}
     };
 
     // Heartbeat every 25 seconds
@@ -60,6 +60,7 @@ const LiveCounter: React.FC = () => {
 
     return () => {
       mounted = false;
+      if (reconnectTimer) clearTimeout(reconnectTimer);
       if (pingRef.current) clearInterval(pingRef.current);
       wsRef.current?.close();
     };
