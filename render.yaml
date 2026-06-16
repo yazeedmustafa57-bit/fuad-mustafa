@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: fuad-mustafa-live
+    env: node
+    rootDir: server
+    buildCommand: npm install
+    startCommand: node index.js
+    healthCheckPath: /
+    envVars:
+      - key: PORT
+        value: 3001

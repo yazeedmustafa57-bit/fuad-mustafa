@@ -1,0 +1,15 @@
+{
+  "name": "fuad-mustafa-live",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "Live visitor counter WebSocket server",
+  "dependencies": {
+    "ws": "^8.21.0"
+  }
+}

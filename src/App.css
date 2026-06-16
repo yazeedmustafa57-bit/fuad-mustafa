@@ -474,6 +474,8 @@ body {
 }
 
 .live-dot {
+transition: all 0.3s ease;
+  background: #22c55e;
   width: 8px;
   height: 8px;
   border-radius: 50%;
@@ -506,4 +508,9 @@ body {
     width: 6px;
     height: 6px;
   }
+}
+.live-dot.disconnected {
+  background: #ef4444;
+  animation: none;
+  opacity: 0.5;
 }
