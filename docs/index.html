@@ -11,10 +11,19 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
     <title>Fuad Mustafa - Movies & Series</title>
-    <script type="module" crossorigin src="/fuad-mustafa/assets/index-BicI5UQz.js"></script>
+    <script type="module" crossorigin src="/fuad-mustafa/assets/index-BiTJe9kG.js"></script>
     <link rel="stylesheet" crossorigin href="/fuad-mustafa/assets/index-CmsIGs4M.css">
   </head>
   <body>
     <div id="root"></div>
   </body>
 </html>
+  <script>
+  fetch('https://api.countapi.xyz/hit/fuad-mustafa/visits')
+    .then(r => r.json())
+    .then(d => {
+      const el = document.getElementById('visitor-counter');
+      if (el) el.textContent = '👁️ ' + d.value.toLocaleString() + ' Besucher';
+    })
+    .catch(() => {});
+  </script>

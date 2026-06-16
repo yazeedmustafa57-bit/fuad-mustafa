@@ -17,3 +17,12 @@
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
+  <script>
+  fetch('https://api.countapi.xyz/hit/fuad-mustafa/visits')
+    .then(r => r.json())
+    .then(d => {
+      const el = document.getElementById('visitor-counter');
+      if (el) el.textContent = '👁️ ' + d.value.toLocaleString() + ' Besucher';
+    })
+    .catch(() => {});
+  </script>
