@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import LiveCounter from './LiveCounter';
 
 interface HeaderProps {
   onSearch: (query: string) => void;
@@ -50,6 +51,9 @@ const Header: React.FC<HeaderProps> = ({ onSearch, currentPage, onNavigate }) =>
             <span className="logo-name">Fuad Mustafa</span>
             <span className="logo-sub">Movies & Series</span>
           </div>
+        </div>
+        <div className="header-badges">
+          <LiveCounter />
         </div>
 
         <nav className="nav">
