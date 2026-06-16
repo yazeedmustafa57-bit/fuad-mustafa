@@ -45,6 +45,7 @@ const App: React.FC = () => {
         onNavigate={handleNavigate}
       />
       <main className="main">
+<div id="visitor-counter" style={{textAlign: "center", padding: "4px 0 0", fontSize: "0.75rem", color: "var(--text-muted)", position: "relative", top: "72px"}}></div>
         {currentPage === 'home' && (
           <>
             <section className="hero-section">
@@ -82,7 +83,6 @@ const App: React.FC = () => {
         {currentPage === 'settings' && <AdblockInfo />}
       </main>
       <footer className="footer">
-        <div id="visitor-counter" style={{textAlign: "center", padding: "8px 0 4px", fontSize: "0.8rem", color: "var(--text-muted)"}}></div>
         <div className="footer-inner">
           <div className="footer-logo">
             <div className="logo-flag small">
