@@ -412,43 +412,6 @@ body {
 
 
 
-/* === Player Overlay (Click-to-Play) === */
-.player-overlay {
-  position: absolute; inset: 0;
-  z-index: 10;
-  display: flex; align-items: center; justify-content: center;
-  background: rgba(0, 0, 0, 0.85);
-  cursor: pointer;
-  transition: opacity 0.3s ease;
-  border-radius: var(--radius-lg);
-}
-.player-overlay:hover {
-  background: rgba(0, 0, 0, 0.75);
-}
-.player-overlay-content {
-  text-align: center;
-  pointer-events: none;
-}
-.player-overlay-icon {
-  margin-bottom: 16px;
-  animation: overlay-pulse 2s ease-in-out infinite;
-}
-@keyframes overlay-pulse {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.1); opacity: 0.8; }
-}
-.player-overlay-text {
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: #fff;
-  margin-bottom: 8px;
-}
-.player-overlay-hint {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-}
-
-
 /* === FOOTER === */
 .footer {
   background: var(--bg-secondary);
