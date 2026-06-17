@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { getMovieDetails, getTVShowDetails, getImageUrl } from '../api/tmdb';
 
 interface WatchPageProps {
@@ -16,8 +16,7 @@ const WatchPage: React.FC<WatchPageProps> = ({ item, onBack }) => {
   const [details, setDetails] = useState<any>(null);
   const [_loading, setLoading] = useState(true);
   const [serverIndex, setServerIndex] = useState(0);
-  const [playerActive, setPlayerActive] = useState(false);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [playerReady, setPlayerReady] = useState(false);
 
   const id = item.id;
   const isTV = item.media_type === 'tv' || item.first_air_date || item.name;
@@ -31,19 +30,11 @@ const WatchPage: React.FC<WatchPageProps> = ({ item, onBack }) => {
       .catch(() => setLoading(false));
   }, [id]);
 
-  const handleActivatePlayer = useCallback(() => {
-    setPlayerActive(true);
-    setTimeout(() => {
-      if (iframeRef.current) {
-        iframeRef.current.focus();
-      }
-    }, 100);
-  }, []);
-
-  const handleServerChange = useCallback((index: number) => {
-    setServerIndex(index);
-    setPlayerActive(false);
-  }, []);
+  useEffect(() => {
+    setPlayerReady(false);
+    const timer = setTimeout(() => setPlayerReady(true), 1500);
+    return () => clearTimeout(timer);
+  }, [serverIndex]);
 
   const embedUrl = EMBED_SOURCES[serverIndex].url(id, mediaType);
   const backdrop = details?.backdrop_path || item.backdrop_path;
@@ -92,7 +83,7 @@ const WatchPage: React.FC<WatchPageProps> = ({ item, onBack }) => {
             <button
               key={i}
               className={`server-btn ${i === serverIndex ? 'active' : ''}`}
-              onClick={() => handleServerChange(i)}
+              onClick={() => setServerIndex(i)}
             >
               {s.name}
             </button>
@@ -100,36 +91,20 @@ const WatchPage: React.FC<WatchPageProps> = ({ item, onBack }) => {
         </div>
 
         <div className="player-container">
-          {!playerActive ? (
-            <div className="player-overlay" onClick={handleActivatePlayer}>
-              <div className="player-overlay-content">
-                <div className="player-overlay-icon">
-                  <svg width="64" height="64" viewBox="0 0 24 24" fill="var(--accent-red)" stroke="none">
-                    <polygon points="5 3 19 12 5 21 5 3"/>
-                  </svg>
-                </div>
-                <div className="player-overlay-text">Zum Abspielen tippen</div>
-                <div className="player-overlay-hint">Keine Werbung – Player sicher aktivieren</div>
-              </div>
-            </div>
-          ) : null}
-          {playerActive ? (
-            <iframe
-              ref={iframeRef}
-              src={embedUrl}
-              className="player-iframe ready"
-              allowFullScreen
-              allow="autoplay; fullscreen; clipboard-write"
-              title={title}
-              sandbox="allow-scripts allow-same-origin allow-forms allow-presentation"
-            />
-          ) : null}
-          {!playerActive ? (
+          {!playerReady ? (
             <div className="player-loading">
               <div className="loader-ring"/>
               <span>Player wird geladen...</span>
             </div>
           ) : null}
+          <iframe
+            src={embedUrl}
+            className={`player-iframe ${playerReady ? 'ready' : ''}`}
+            allowFullScreen
+            allow="autoplay; fullscreen"
+            title={title}
+            onLoad={() => setPlayerReady(true)}
+          />
         </div>
 
         {details?.overview && (
