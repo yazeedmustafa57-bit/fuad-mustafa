@@ -13,7 +13,6 @@ const WatchPage: React.FC<WatchPageProps> = ({ item, onBack }) => {
   const [details, setDetails] = useState<any>(null);
   const [serverIdx, setServerIdx] = useState(0);
   const [playerState, setPlayerState] = useState<PlayerState>('loading');
-  const [playerActive, setPlayerActive] = useState(false);
   const [availableSources, setAvailableSources] = useState<EmbedSource[]>(EMBED_SOURCES);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const timerRef = useRef<number | undefined>(undefined);
@@ -60,10 +59,6 @@ const WatchPage: React.FC<WatchPageProps> = ({ item, onBack }) => {
 
   const currentSource = availableSources[serverIdx] || EMBED_SOURCES[serverIdx];
 
-  const handleActivatePlayer = useCallback(() => {
-    setPlayerActive(true);
-  }, []);
-
   const tryNextServer = useCallback(() => {
     if (serverIdx < availableSources.length - 1) {
       setServerIdx(prev => prev + 1);
@@ -92,7 +87,6 @@ const WatchPage: React.FC<WatchPageProps> = ({ item, onBack }) => {
     }
     setServerIdx(idx);
     setPlayerState('loading');
-    setPlayerActive(false);
   }, []);
 
   const handleRetry = useCallback(() => {
@@ -183,23 +177,8 @@ const WatchPage: React.FC<WatchPageProps> = ({ item, onBack }) => {
 
         {/* Player-Bereich */}
         <div className="player-container">
-          {/* Click-to-Play Overlay */}
-          {!playerActive && (
-            <div className="player-overlay" onClick={handleActivatePlayer}>
-              <div className="player-overlay-content">
-                <div className="player-overlay-icon">
-                  <svg width="64" height="64" viewBox="0 0 24 24" fill="var(--accent-red)" stroke="none">
-                    <polygon points="5 3 19 12 5 21 5 3"/>
-                  </svg>
-                </div>
-                <div className="player-overlay-text">Zum Abspielen tippen</div>
-                <div className="player-overlay-hint">Player sicher aktivieren – keine Popups</div>
-              </div>
-            </div>
-          )}
-
           {/* Loading */}
-          {playerActive && playerState === 'loading' && (
+          {playerState === 'loading' && (
             <div className="player-loading">
               <div className="loader-ring" />
               <span>Lade {currentSource?.name}...</span>
@@ -207,7 +186,7 @@ const WatchPage: React.FC<WatchPageProps> = ({ item, onBack }) => {
           )}
 
           {/* Server blockiert / kein Server verfügbar */}
-          {playerActive && playerState === 'blocked' && (
+          {playerState === 'blocked' && (
             <div className="player-loading">
               <div className="player-error-icon">🚫</div>
               <span>Kein Server verfügbar</span>
@@ -226,8 +205,9 @@ const WatchPage: React.FC<WatchPageProps> = ({ item, onBack }) => {
             </div>
           )}
 
-          {/* Iframe – nur nach Aktivierung */}
-          {playerActive && (
+          {/* Iframe – OHNE Sandbox-Attribut, damit Embed-Server nicht blocken!
+              Der Werbeblocker arbeitet stattdessen auf DNS-Ebene (AdGuard DNS)
+              Das ist unsichtbar für die Embed-Server und löst keine Warnung aus. */}
           <iframe
             ref={iframeRef}
             key={`${serverIdx}-${item.id}`}
@@ -238,8 +218,7 @@ const WatchPage: React.FC<WatchPageProps> = ({ item, onBack }) => {
             title={title}
             onLoad={handleIframeLoad}
             loading="lazy"
-            />
-          )}
+          />
         </div>
 
         {/* Hinweise */}
