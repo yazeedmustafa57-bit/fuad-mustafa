@@ -11,35 +11,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
     <title>Fuad Mustafa - Movies & Series</title>
-    <script>
-    // Popup-Blocker: unterbindet Popup-Fenster von eingebetteten Playern
-    (function() {
-      var originalOpen = window.open;
-      var blocked = 0;
-      window.open = function() {
-        blocked++;
-        console.warn('[Popup-Blocker] Popup blockiert (#', blocked, ')');
-        return null;
-      };
-      // Auch target=_blank Links abfangen
-      document.addEventListener('click', function(e) {
-        var target = e.target;
-        while (target && target !== document) {
-          if (target.tagName === 'A' && target.getAttribute('target') === '_blank') {
-            var href = target.getAttribute('href');
-            if (href && (href.startsWith('http') || href.startsWith('//'))) {
-              console.warn('[Popup-Blocker] Externer Link blockiert:', href);
-              e.preventDefault();
-              e.stopPropagation();
-              return;
-            }
-          }
-          target = target.parentElement;
-        }
-      }, true);
-    })();
-  </script>
-    <script type="module" crossorigin src="/fuad-mustafa/assets/index-gBjDh2NN.js"></script>
+    <script type="module" crossorigin src="/fuad-mustafa/assets/index-D82Jvyj1.js"></script>
     <link rel="stylesheet" crossorigin href="/fuad-mustafa/assets/index-CJTn-Txu.css">
   </head>
   <body>
