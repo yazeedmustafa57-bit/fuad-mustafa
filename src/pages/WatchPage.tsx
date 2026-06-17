@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { getMovieDetails, getTVShowDetails, getImageUrl } from '../api/tmdb';
 
 interface WatchPageProps {
@@ -6,82 +6,19 @@ interface WatchPageProps {
   onBack: () => void;
 }
 
-type SubLang = 'off' | 'de' | 'en' | 'original';
-
-/* Sprachcodes für Untertitel/Sprache */
-const LANG_OPTIONS: { key: SubLang; label: string; flag: string }[] = [
-  { key: 'off',   label: 'Keine UT',         flag: '🚫' },
-  { key: 'de',    label: 'Deutsch',           flag: '🇩🇪' },
-  { key: 'en',    label: 'Englisch',          flag: '🇬🇧' },
-  { key: 'original', label: 'Original',       flag: '🎬' },
+const EMBED_SOURCES = [
+  { name: 'Server 1', url: (id: number, type: string) => `https://vidsrc.to/embed/${type}/${id}` },
+  { name: 'Server 2', url: (id: number, type: string) => `https://www.2embed.skin/embed/${type}/${id}` },
+  { name: 'Server 3', url: (id: number, type: string) => `https://www.2embed.cc/embed/${type}/${id}` },
 ];
 
-interface EmbedSource {
-  name: string;
-  url: (id: number, type: string, lang: SubLang) => string;
-}
-
-/* Haupt-Server mit Sprach-Parametern */
-const EMBED_SOURCES: EmbedSource[] = [
-  {
-    name: 'Server 1',
-    url: (id, type, lang) => {
-      let base = `https://vidsrc.to/embed/${type}/${id}`;
-      if (lang === 'de') base += '?sub=de';
-      else if (lang === 'en') base += '?sub=en';
-      return base;
-    },
-  },
-  {
-    name: 'Server 2',
-    url: (id, type, lang) => {
-      let base = `https://www.2embed.skin/embed/${type}/${id}`;
-      if (lang === 'de') base += '?l=de';
-      else if (lang === 'en') base += '?l=en';
-      return base;
-    },
-  },
-  {
-    name: 'Server 3',
-    url: (id, type, lang) => {
-      let base = `https://www.2embed.cc/embed/${type}/${id}`;
-      if (lang === 'de') base += '?l=de';
-      else if (lang === 'en') base += '?l=en';
-      return base;
-    },
-  },
+/* Hydrax als Fallback-Server */
+const FALLBACK_SOURCES = [
+  { name: 'Fallback 1', url: (id: number, type: string) => `https://vidsrc.cc/v2/embed/${type}/${id}` },
+  { name: 'Fallback 2', url: (id: number, type: string) => `https://vidsrc.pro/embed/${type}/${id}` },
+  { name: 'Fallback 3', url: (id: number, type: string) => `https://embed.su/embed/${type}/${id}` },
 ];
 
-/* Fallback-Server */
-const FALLBACK_SOURCES: EmbedSource[] = [
-  {
-    name: 'Fallback 1',
-    url: (id, type, lang) => {
-      let base = `https://vidsrc.cc/v2/embed/${type}/${id}`;
-      if (lang === 'de') base += '?lang=de';
-      else if (lang === 'en') base += '?lang=en';
-      return base;
-    },
-  },
-  {
-    name: 'Fallback 2',
-    url: (id, type, lang) => {
-      let base = `https://vidsrc.pro/embed/${type}/${id}`;
-      if (lang === 'de') base += '?lang=de';
-      else if (lang === 'en') base += '?lang=en';
-      return base;
-    },
-  },
-  {
-    name: 'Fallback 3',
-    url: (id, type, lang) => {
-      let base = `https://embed.su/embed/${type}/${id}`;
-      if (lang === 'de') base += '?lang=de';
-      else if (lang === 'en') base += '?lang=en';
-      return base;
-    },
-  },
-];
 
 const WatchPage: React.FC<WatchPageProps> = ({ item, onBack }) => {
   const [details, setDetails] = useState<any>(null);
@@ -89,7 +26,6 @@ const WatchPage: React.FC<WatchPageProps> = ({ item, onBack }) => {
   const [serverIndex, setServerIndex] = useState(0);
   const [playerActive, setPlayerActive] = useState(false);
   const [showFallback, setShowFallback] = useState(false);
-  const [subLang, setSubLang] = useState<SubLang>('de');
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const id = item.id;
@@ -101,22 +37,19 @@ const WatchPage: React.FC<WatchPageProps> = ({ item, onBack }) => {
 
   useEffect(() => {
     setLoading(true);
-    setPlayerActive(false);
     (isTV ? getTVShowDetails(id) : getMovieDetails(id))
       .then(data => { setDetails(data); setLoading(false); })
       .catch(() => setLoading(false));
   }, [id, isTV]);
 
-  /* Originalsprache aus TMDB */
-  const origLang = useMemo(() => {
-    if (!details?.spoken_languages?.length) return '';
-    return details.spoken_languages[0].iso_639_1 || '';
-  }, [details]);
-
   const handleActivatePlayer = useCallback(() => {
     setPlayerActive(true);
+    /* Kurzer Timeout, damit der Iframe nach Aktivierung starten kann */
     setTimeout(() => {
-      iframeRef.current?.focus();
+      if (iframeRef.current) {
+        /* Sandbox blockiert Popups – zusätzlich den Fokus setzen */
+        iframeRef.current.focus();
+      }
     }, 100);
   }, []);
 
@@ -131,17 +64,7 @@ const WatchPage: React.FC<WatchPageProps> = ({ item, onBack }) => {
     setPlayerActive(false);
   }, []);
 
-  const handleLangChange = useCallback((lang: SubLang) => {
-    setSubLang(lang);
-    setPlayerActive(false);
-  }, []);
-
-  const embedUrl = useMemo(() => {
-    /* Für 'original' setzen wir den Code der Originalsprache, falls bekannt */
-    const activeLang = subLang === 'original' ? (origLang || 'en') : subLang;
-    return sources[serverIndex].url(id, mediaType, activeLang as SubLang);
-  }, [sources, serverIndex, id, mediaType, subLang, origLang]);
-
+  const embedUrl = sources[serverIndex].url(id, mediaType);
   const backdrop = details?.backdrop_path || item.backdrop_path;
 
   return (
@@ -176,16 +99,6 @@ const WatchPage: React.FC<WatchPageProps> = ({ item, onBack }) => {
                   {Math.round(details.vote_average * 10) / 10}
                 </span>
               )}
-              {/* Verfügbare Sprachen anzeigen */}
-              {details.spoken_languages?.length > 0 && (
-                <span className="watch-languages" title="Verfügbare Sprachen">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                    <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
-                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-                  </svg>
-                  {details.spoken_languages.map((l: any) => l.english_name).join(', ')}
-                </span>
-              )}
             </div>
           )}
         </div>
@@ -212,23 +125,9 @@ const WatchPage: React.FC<WatchPageProps> = ({ item, onBack }) => {
           </button>
         </div>
 
-        {/* Sprachauswahl für Untertitel / Audio */}
-        <div className="lang-select">
-          <span className="server-label">Sprache:</span>
-          {LANG_OPTIONS.map(opt => (
-            <button
-              key={opt.key}
-              className={`lang-btn ${subLang === opt.key ? 'active' : ''}`}
-              onClick={() => handleLangChange(opt.key)}
-              title={opt.label}
-            >
-              {opt.flag} {opt.label}
-            </button>
-          ))}
-        </div>
-
         <div className="player-container">
           {!playerActive ? (
+            /* Overlay: Klick zum Aktivieren des Players */
             <div className="player-overlay" onClick={handleActivatePlayer}>
               <div className="player-overlay-content">
                 <div className="player-overlay-icon">
@@ -237,11 +136,7 @@ const WatchPage: React.FC<WatchPageProps> = ({ item, onBack }) => {
                   </svg>
                 </div>
                 <div className="player-overlay-text">Zum Abspielen tippen</div>
-                <div className="player-overlay-hint">
-                  {subLang === 'de' ? '🇩🇪 Deutsche Untertitel aktiv' : 
-                   subLang === 'en' ? '🇬🇧 Englische Untertitel aktiv' : 
-                   subLang === 'original' ? '🎬 Originalsprache' : 'Keine Untertitel'}
-                </div>
+                <div className="player-overlay-hint">Keine Werbung – Player sicher aktivieren</div>
               </div>
             </div>
           ) : null}
