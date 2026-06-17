@@ -7,7 +7,7 @@ interface WatchPageProps {
   onBack: () => void;
 }
 
-type PlayerState = 'loading' | 'ready' | 'error' | 'adblocked';
+type PlayerState = 'loading' | 'ready' | 'error' | 'blocked';
 
 const WatchPage: React.FC<WatchPageProps> = ({ item, onBack }) => {
   const [details, setDetails] = useState<any>(null);
@@ -22,14 +22,14 @@ const WatchPage: React.FC<WatchPageProps> = ({ item, onBack }) => {
   const mediaType = isTV ? 'tv' : 'movie';
   const title = item.title || item.name || '';
 
-  // Details von TMDB laden
+  // TMDB Details laden
   useEffect(() => {
     (isTV ? getTVShowDetails(id) : getMovieDetails(id))
       .then(data => setDetails(data))
       .catch(() => {});
   }, [id, isTV]);
 
-  // Auto-Server-Test: Alle Server parallel pingen, nur lebendige behalten
+  // Verfügbare Server erkennen (einmalig pro Session)
   useEffect(() => {
     let mounted = true;
     (async () => {
@@ -54,21 +54,21 @@ const WatchPage: React.FC<WatchPageProps> = ({ item, onBack }) => {
       if (alive.length > 0) setAvailableSources(alive);
     })();
     return () => { mounted = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [item.id]);
 
   const currentSource = availableSources[serverIdx] || EMBED_SOURCES[serverIdx];
 
-  // Nächsten Server probieren (bei Timeout oder Fehler)
   const tryNextServer = useCallback(() => {
     if (serverIdx < availableSources.length - 1) {
       setServerIdx(prev => prev + 1);
       setPlayerState('loading');
     } else {
-      setPlayerState('adblocked');
+      setPlayerState('blocked');
     }
   }, [serverIdx, availableSources.length]);
 
-  // Timeout: Wenn Player nicht innerhalb von 15s lädt, nächstes Server
+  // Timeout → nächster Server
   useEffect(() => {
     if (playerState !== 'loading') return;
     timerRef.current = window.setTimeout(tryNextServer, PLAYER_TIMEOUT);
@@ -80,7 +80,6 @@ const WatchPage: React.FC<WatchPageProps> = ({ item, onBack }) => {
     };
   }, [playerState, tryNextServer, serverIdx]);
 
-  // Manueller Server-Wechsel
   const switchServer = useCallback((idx: number) => {
     if (timerRef.current !== undefined) {
       window.clearTimeout(timerRef.current);
@@ -90,13 +89,12 @@ const WatchPage: React.FC<WatchPageProps> = ({ item, onBack }) => {
     setPlayerState('loading');
   }, []);
 
-  // Komplett-Neustart
   const handleRetry = useCallback(() => {
     setServerIdx(0);
     setPlayerState('loading');
   }, []);
 
-  // Iframe erfolgreich geladen
+  // Wenn ein Server nach 5s nichts lädt → "error" (nutzerfreundlicher)
   const handleIframeLoad = useCallback(() => {
     if (timerRef.current !== undefined) {
       window.clearTimeout(timerRef.current);
@@ -110,6 +108,7 @@ const WatchPage: React.FC<WatchPageProps> = ({ item, onBack }) => {
 
   return (
     <div className="watch-page">
+      {/* Hero */}
       <div
         className="watch-hero"
         style={backdrop ? {
@@ -152,8 +151,9 @@ const WatchPage: React.FC<WatchPageProps> = ({ item, onBack }) => {
         </div>
       </div>
 
+      {/* Player */}
       <div className="watch-player-section">
-        {/* Server-Auswahl mit Status */}
+        {/* Server-Tabs */}
         <div className="server-select">
           <span className="server-label">Server:</span>
           {EMBED_SOURCES.map((s, i) => {
@@ -175,26 +175,29 @@ const WatchPage: React.FC<WatchPageProps> = ({ item, onBack }) => {
           })}
         </div>
 
-        {/* Player-Container */}
+        {/* Player-Bereich */}
         <div className="player-container">
+          {/* Loading */}
           {playerState === 'loading' && (
             <div className="player-loading">
               <div className="loader-ring" />
-              <span>Verbinde mit {currentSource?.name}...</span>
-              <span className="player-hint">Server-Test aktiv, Werbeblocker läuft</span>
+              <span>Lade {currentSource?.name}...</span>
             </div>
           )}
 
-          {playerState === 'adblocked' && (
+          {/* Server blockiert / kein Server verfügbar */}
+          {playerState === 'blocked' && (
             <div className="player-loading">
               <div className="player-error-icon">🚫</div>
-              <span>Alle Server blockiert?</span>
-              <div className="player-hint" style={{ marginTop: 16, textAlign: 'left', lineHeight: 1.6 }}>
-                <strong>Mögliche Lösungen:</strong><br />
-                1. AdGuard DNS im WLAN aktivieren (Einstellungen → 🔇)<br />
-                2. uBlock Origin im Browser nutzen<br />
-                3. VPN deaktivieren falls aktiv<br />
-                4. Später erneut versuchen
+              <span>Kein Server verfügbar</span>
+              <div className="player-hint" style={{ marginTop: 16, textAlign: 'left', lineHeight: 1.8 }}>
+                <strong>So klappt's:</strong><br />
+                ① AdGuard DNS im WLAN einrichten<br />
+                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', display: 'block', marginLeft: 20 }}>
+                  Einstellungen → 🔇 → DNS auf dns.adguard.com setzen
+                </span>
+                ② Oder uBlock Origin im Browser installieren<br />
+                ③ Später erneut versuchen (Server sind instabil)
               </div>
               <button className="hero-btn hero-btn-primary" onClick={handleRetry} style={{ marginTop: 20 }}>
                 🔄 Erneut versuchen
@@ -202,6 +205,9 @@ const WatchPage: React.FC<WatchPageProps> = ({ item, onBack }) => {
             </div>
           )}
 
+          {/* Iframe – OHNE Sandbox-Attribut, damit Embed-Server nicht blocken!
+              Der Werbeblocker arbeitet stattdessen auf DNS-Ebene (AdGuard DNS)
+              Das ist unsichtbar für die Embed-Server und löst keine Warnung aus. */}
           <iframe
             ref={iframeRef}
             key={`${serverIdx}-${item.id}`}
@@ -211,18 +217,24 @@ const WatchPage: React.FC<WatchPageProps> = ({ item, onBack }) => {
             allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
             title={title}
             onLoad={handleIframeLoad}
-            sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
-            referrerPolicy="no-referrer"
             loading="lazy"
           />
         </div>
 
-        {/* Statuszeile */}
+        {/* Hinweise */}
         <div className="server-status">
           <span className={`status-dot ${playerState === 'ready' ? 'online' : 'loading'}`} />
-          {playerState === 'ready' && `Verbunden mit ${currentSource?.name} – Werbeblocker aktiv`}
-          {playerState === 'loading' && `Teste ${currentSource?.name}...`}
-          {playerState === 'adblocked' && 'Kein Server verfügbar – DNS-Werbeblocker prüfen'}
+          {playerState === 'ready' && (
+            <>
+              Verbunden mit {currentSource?.name}
+              <span style={{ marginLeft: 8, opacity: 0.6 }}>–</span>
+              <span style={{ marginLeft: 8, opacity: 0.7 }}>
+                🔇 Werbung via DNS blockiert (unsichtbar für Server)
+              </span>
+            </>
+          )}
+          {playerState === 'loading' && `Starte ${currentSource?.name}...`}
+          {playerState === 'blocked' && 'Alle Server offline – DNS-Adblock oder später versuchen'}
         </div>
 
         {details?.overview && (
