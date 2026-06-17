@@ -448,6 +448,38 @@ body {
   color: var(--text-muted);
 }
 
+
+
+/* === Language Selector === */
+.lang-select {
+  display: flex; align-items: center; gap: 6px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.lang-btn {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--border); color: var(--text-secondary);
+  padding: 6px 14px; border-radius: 8px;
+  font-size: 0.8rem; font-weight: 500; cursor: pointer;
+  font-family: inherit; transition: var(--transition);
+}
+.lang-btn:hover { background: rgba(255,255,255,0.1); color: var(--text-primary); }
+.lang-btn.active {
+  background: var(--accent-green); color: #fff; border-color: var(--accent-green);
+}
+
+/* === Language Badge in Meta === */
+.watch-languages {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 0.75rem; color: var(--text-muted);
+  background: rgba(255,255,255,0.05);
+  padding: 2px 10px; border-radius: 6px;
+  white-space: nowrap;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* === FOOTER === */
 .footer {
   background: var(--bg-secondary);
