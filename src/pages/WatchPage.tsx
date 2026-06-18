@@ -104,6 +104,7 @@ const WatchPage: React.FC<WatchPageProps> = ({ item, onBack }) => {
             allow="autoplay; fullscreen"
             title={title}
             onLoad={() => setPlayerReady(true)}
+            referrerPolicy="no-referrer"
           />
         </div>
 
