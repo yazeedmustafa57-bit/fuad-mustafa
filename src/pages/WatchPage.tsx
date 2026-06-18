@@ -105,6 +105,7 @@ const WatchPage: React.FC<WatchPageProps> = ({ item, onBack }) => {
             title={title}
             onLoad={() => setPlayerReady(true)}
             referrerPolicy="no-referrer"
+            sandbox="allow-scripts allow-same-origin allow-forms allow-presentation"
           />
         </div>
 
