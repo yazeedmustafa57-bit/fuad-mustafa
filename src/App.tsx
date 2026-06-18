@@ -22,19 +22,17 @@ const App: React.FC = () => {
     setCurrentPage(page as Page);
     setSelectedItem(null);
     if (page !== 'search') setSearchQuery('');
-    try { document.exitFullscreen(); } catch(e) {}
   }, []);
 
   const handleSelect = useCallback((item: any) => {
     setSelectedItem(item);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    try { document.documentElement.requestFullscreen(); } catch(e) {}
   }, []);
 
   if (selectedItem) {
     return (
       <div className="app">
-        <WatchPage item={selectedItem} onBack={() => { setSelectedItem(null); try { document.exitFullscreen(); } catch(e) {} }} />
+        <WatchPage item={selectedItem} onBack={() => setSelectedItem(null)} />
       </div>
     );
   }
