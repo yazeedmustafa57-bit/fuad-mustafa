@@ -543,6 +543,143 @@ transition: all 0.3s ease;
   background: #22c55e;
   display: inline-block;
   animation: live-pulse 2s ease-in-out infinite;
+
 }
-  margin: 0 2px;
+/* === AdBlock Button === */
+.hero-btn-adblock {
+  background: rgba(206, 17, 38, 0.15);
+  border: 1px solid rgba(206, 17, 38, 0.4);
+  color: var(--accent-red);
+}
+.hero-btn-adblock:hover {
+  background: rgba(206, 17, 38, 0.25);
+  border-color: var(--accent-red);
+}
+.hero-btn-adblock.active {
+  background: var(--accent-green);
+  border-color: var(--accent-green);
+  color: #fff;
+}
+.hero-btn-adblock.active:hover {
+  background: #00884a;
+}
+
+.adblock-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+
+}
+.adblock-modal {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 40px;
+  max-width: 480px;
+  width: 100%;
+  text-align: center;
+
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+.adblock-modal-icon {
+  font-size: 3.5rem;
+  margin-bottom: 16px;
+}
+.adblock-modal-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin-bottom: 12px;
+  color: var(--text-primary);
+}
+.adblock-modal-text {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.7;
+  margin-bottom: 24px;
+}
+.adblock-modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+.adblock-modal-actions .hero-btn {
+  min-width: 140px;
+}
+
+/* === DNS Banner === */
+.dns-banner {
+  background: linear-gradient(135deg, var(--bg-card), #1e1e3a);
+  border: 1px solid rgba(206, 17, 38, 0.3);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin: 32px 0 0;
+  transition: var(--transition);
+}
+.dns-banner:hover {
+  border-color: rgba(206, 17, 38, 0.6);
+  box-shadow: 0 4px 20px rgba(206, 17, 38, 0.15);
+}
+.dns-banner-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.dns-banner-icon {
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+.dns-banner-text {
+  flex: 1;
+}
+.dns-banner-text strong {
+  display: block;
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: var(--text-primary);
+}
+.dns-banner-text p {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+.dns-banner-text code {
+  background: rgba(255,255,255,0.1);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  color: var(--accent-gold);
+}
+.dns-banner-btn {
+  background: var(--accent-red);
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  transition: var(--transition);
+}
+.dns-banner-btn:hover {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+}
+@media (max-width: 640px) {
+  .dns-banner-content {
+    flex-direction: column;
+    text-align: center;
+  }
+  .dns-banner-btn {
+    width: 100%;
+  }
 }

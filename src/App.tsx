@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import Header from './components/Header';
 import ContentGrid from './pages/ContentGrid';
 import WatchPage from './pages/WatchPage';
@@ -11,6 +11,39 @@ const App: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<Page>('home');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedItem, setSelectedItem] = useState<any>(null);
+  const [adBlockActive, setAdBlockActive] = useState(false);
+  const [showAdModal, setShowAdModal] = useState(false);
+
+  // Service Worker Ad-Blocking Status
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.addEventListener('message', (event) => {
+        if (event.data && event.data.type === 'adBlockStatus') {
+          setAdBlockActive(event.data.active);
+        }
+      });
+    }
+  }, []);
+
+  const toggleAdBlock = useCallback(() => {
+    const newState = !adBlockActive;
+    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage({
+        type: 'toggleAdBlock',
+        active: newState,
+      });
+    }
+    setAdBlockActive(newState);
+    if (newState) {
+      setShowAdModal(true);
+      setTimeout(() => setShowAdModal(false), 5000);
+    }
+  }, [adBlockActive]);
+
+  const handleAdBlockClick = useCallback(() => {
+    toggleAdBlock();
+    handleNavigate('settings');
+  }, [toggleAdBlock]);
 
   const handleSearch = useCallback((query: string) => {
     setSearchQuery(query);
@@ -63,15 +96,59 @@ const App: React.FC = () => {
                   <button className="hero-btn hero-btn-secondary" onClick={() => handleNavigate('series')}>
                     Serien entdecken
                   </button>
+                  <button
+                    className={`hero-btn hero-btn-adblock ${adBlockActive ? 'active' : ''}`}
+                    onClick={handleAdBlockClick}
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                    {adBlockActive ? '✓ Werbeschutz an' : '🔇 Werbung blockieren'}
+                  </button>
                 </div>
               </div>
             </section>
+
+            {/* Ad-Block Success Modal */}
+            {showAdModal && (
+              <div className="adblock-modal-overlay" onClick={() => setShowAdModal(false)}>
+                <div className="adblock-modal" onClick={(e) => e.stopPropagation()}>
+                  <div className="adblock-modal-icon">🛡️</div>
+                  <h3 className="adblock-modal-title">Werbeschutz aktiv!</h3>
+                  <p className="adblock-modal-text">
+                    Popup-Blocker und Ad-Blocking sind aktiv. 
+                    Für kompletten Werbeschutz auf dem ganzen Gerät 
+                    richte <strong>AdGuard DNS</strong> in den Einstellungen ein.
+                  </p>
+                  <div className="adblock-modal-actions">
+                    <button className="hero-btn hero-btn-primary" onClick={() => { setShowAdModal(false); handleNavigate('settings'); }}>
+                      DNS-Anleitung öffnen
+                    </button>
+                    <button className="hero-btn hero-btn-secondary" onClick={() => setShowAdModal(false)}>
+                      Schließen
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <section className="section">
               <div className="section-header">
                 <h2 className="section-title">Trending</h2>
                 <button className="section-link" onClick={() => handleNavigate('movies')}>Alle anzeigen →</button>
               </div>
               <ContentGrid type="trending" onSelect={handleSelect} />
+          {/* DNS Werbeblocker Banner */}
+          <div className="dns-banner">
+            <div className="dns-banner-content">
+              <span className="dns-banner-icon">🔇</span>
+              <div className="dns-banner-text">
+                <strong>Werbung blockieren?</strong>
+                <p>Auf Android: Einstellungen → Private DNS → <code>dns.adguard.com</code></p>
+              </div>
+              <button className="dns-banner-btn" onClick={() => handleNavigate('settings')}>Anleitung</button>
+            </div>
+          </div>
             </section>
           </>
         )}

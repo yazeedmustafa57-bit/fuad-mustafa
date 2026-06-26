@@ -11,6 +11,25 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
     <title>Fuad Mustafa - Movies & Series</title>
+    <script>
+    (function(){
+      window.open = function(){ return null; };
+      document.addEventListener('click', function(e){
+        var el = e.target;
+        while(el && el !== document){
+          if(el.tagName === 'A' && el.getAttribute('target') === '_blank'){
+            var href = el.getAttribute('href');
+            if(href && href !== '#' && !href.startsWith('javascript')){
+              e.preventDefault();
+              e.stopPropagation();
+              return;
+            }
+          }
+          el = el.parentElement;
+        }
+      }, true);
+    })();
+  </script>
   </head>
   <body>
     <div id="root"></div>
