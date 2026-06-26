@@ -10,25 +10,10 @@ interface WatchPageProps {
 // Bei Vercel-Deploy: https://deine-app.vercel.app
 // Lokal: http://localhost:3001
 // Vercel-Proxy (werbefrei): https://fuad-mustafa.vercel.app/api/proxy
-// Vercel-Proxy: Gleiche Domain, daher relativer Pfad
-const PROXY_BASE = 'https://fuad-mustafa.vercel.app';
-
 const EMBED_SOURCES = [
-  { name: 'Server 1', url: (id: number, type: string) => 
-    PROXY_BASE 
-      ? `${PROXY_BASE}/api/proxy?id=${id}&type=${type}&server=0`
-      : `https://vidsrc.to/embed/${type}/${id}` 
-  },
-  { name: 'Server 2', url: (id: number, type: string) => 
-    PROXY_BASE 
-      ? `${PROXY_BASE}/api/proxy?id=${id}&type=${type}&server=1`
-      : `https://www.2embed.skin/embed/${type}/${id}` 
-  },
-  { name: 'Server 3', url: (id: number, type: string) => 
-    PROXY_BASE 
-      ? `${PROXY_BASE}/api/proxy?id=${id}&type=${type}&server=2`
-      : `https://www.2embed.cc/embed/${type}/${id}` 
-  },
+  { name: 'Server 1', url: (id: number, type: string) => `https://vidsrc.to/embed/${type}/${id}` },
+  { name: 'Server 2', url: (id: number, type: string) => `https://www.2embed.skin/embed/${type}/${id}` },
+  { name: 'Server 3', url: (id: number, type: string) => `https://www.2embed.cc/embed/${type}/${id}` },
 ];
 
 const WatchPage: React.FC<WatchPageProps> = ({ item, onBack }) => {
