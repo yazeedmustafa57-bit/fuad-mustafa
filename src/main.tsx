@@ -12,7 +12,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 // Service Worker für PWA & Ad-Blocking
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/fuad-mustafa/sw.js').then(reg => {
+    navigator.serviceWorker.register(import.meta.env.BASE_URL + 'sw.js').then(reg => {
       // Bei Update sofort aktivieren
       reg.addEventListener('updatefound', () => {
         const newSW = reg.installing;

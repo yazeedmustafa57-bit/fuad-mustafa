@@ -1,0 +1,13 @@
+{
+  "buildCommand": "vite build --base=/",
+  "outputDirectory": "docs",
+  "rewrites": [
+    { "source": "/fuad-mustafa/(.*)", "destination": "/$1" },
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
+  ],
+  "functions": {
+    "api/proxy.js": {
+      "maxDuration": 30
+    }
+  }
+}
