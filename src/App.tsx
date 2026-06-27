@@ -131,7 +131,7 @@ const App: React.FC = () => {
                   </p>
                   <div className="adblock-modal-actions">
                     <button className="hero-btn hero-btn-primary" onClick={() => { setShowAdModal(false); handleNavigate('settings'); }}>
-                      DNS-{t('dns.button', lang)} öffnen
+                      {t('modal.settings', lang)}
                     </button>
                     <button className="hero-btn hero-btn-secondary" onClick={() => setShowAdModal(false)}>
                       Schließen
