@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import LiveCounter from './LiveCounter';
+import { useLang } from '../App';
+import { t } from '../i18n';
 
 interface HeaderProps {
   onSearch: (query: string) => void;
@@ -27,12 +29,14 @@ const Header: React.FC<HeaderProps> = ({ onSearch, currentPage, onNavigate }) =>
     }
   };
 
+  const { lang, setLang } = useLang();
+  
   const navItems = [
-    { id: 'home', label: 'Start' },
-    { id: 'sport', label: 'Sport ⚽' },
-    { id: 'movies', label: 'Filme' },
-    { id: 'series', label: 'Serien' },
-    { id: 'settings', label: '🔇' },
+    { id: 'home', label: t('nav.home', lang) },
+    { id: 'sport', label: t('nav.sport', lang) },
+    { id: 'movies', label: t('nav.movies', lang) },
+    { id: 'series', label: t('nav.series', lang) },
+    { id: 'settings', label: t('nav.settings', lang) },
   ];
 
   return (
@@ -73,7 +77,7 @@ const Header: React.FC<HeaderProps> = ({ onSearch, currentPage, onNavigate }) =>
             ref={inputRef}
             type="text"
             className="search-input"
-            placeholder="Filme & Serien suchen..."
+            placeholder={t('search.placeholder', lang)}
             value={query}
             onChange={e => setQuery(e.target.value)}
           />
@@ -84,6 +88,14 @@ const Header: React.FC<HeaderProps> = ({ onSearch, currentPage, onNavigate }) =>
             </svg>
           </button>
         </form>
+        <button
+          className="lang-toggle"
+          onClick={() => setLang(lang === 'de' ? 'krd' : 'de')}
+          title={lang === 'de' ? 'Kurdisch (Badini)' : 'Deutsch'}
+        >
+          <span className="lang-flag">{lang === 'de' ? '🇩🇪' : '🏳️'}</span>
+          <span className="lang-label">{lang === 'de' ? 'DE' : 'KRD'}</span>
+        </button>
       </div>
     </header>
   );
