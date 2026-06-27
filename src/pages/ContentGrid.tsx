@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { getTrending, getPopularMovies, getPopularTVShows, searchMulti } from '../api/tmdb';
 import MovieCard from '../components/MovieCard';
+import { useLang } from '../App';
+import { t } from '../i18n';
 
 interface ContentGridProps {
   type: 'trending' | 'movies' | 'series' | 'search';
@@ -9,6 +11,7 @@ interface ContentGridProps {
 }
 
 const ContentGrid: React.FC<ContentGridProps> = ({ type, searchQuery, onSelect }) => {
+  const { lang } = useLang();
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -94,7 +97,7 @@ const ContentGrid: React.FC<ContentGridProps> = ({ type, searchQuery, onSelect }
           {page < totalPages && (
             <div className="load-more">
               <button className="btn-primary" onClick={loadMore} disabled={loading}>
-                {loading ? 'Lädt...' : 'Mehr laden'}
+                {loading ? 'Lädt...' : t('section.loadMore', lang)}
               </button>
             </div>
           )}

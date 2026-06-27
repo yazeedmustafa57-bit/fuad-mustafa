@@ -100,10 +100,10 @@ const App: React.FC = () => {
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none">
                       <polygon points="5 3 19 12 5 21 5 3"/>
                     </svg>
-                    Filme entdecken
+                    {t('hero.movies', lang)}
                   </button>
                   <button className="hero-btn hero-btn-secondary" onClick={() => handleNavigate('series')}>
-                    Serien entdecken
+                    {t('hero.series', lang)}
                   </button>
                   <button
                     className={`hero-btn hero-btn-adblock ${adBlockActive ? 'active' : ''}`}
