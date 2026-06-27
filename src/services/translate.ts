@@ -1,29 +1,35 @@
-// Badini Übersetzungs-Service für Filmtitel
-const BADINI_API = 'https://translator-site-five.vercel.app/api/proxy';
+// Badini Übersetzungs-Service (Gemini + Badini API)
+
+const GEMINI_API = 'https://translator-site-five.vercel.app/api/gemini-proxy';
 
 interface CacheStore {
   [key: string]: { text: string; time: number };
 }
 
 // API-Key verwalten
-export function getBadiniKey(): string {
+function getStoredKey(): string {
   try {
-    const data = localStorage.getItem('fuad_badini_key') || '';
-    // Prüfe ob es JSON mit decrypt ist
-    if (data.startsWith('{')) return JSON.parse(data).k || '';
-    return data;
+    const raw = localStorage.getItem('fuad_badini_key');
+    if (!raw) return '';
+    const parsed = JSON.parse(raw);
+    return parsed.k || parsed || '';
   } catch { return ''; }
 }
 
-export function setBadiniKey(key: string) {
+export function getApiKey(): string {
+  return getStoredKey();
+}
+
+export function hasApiKey(): boolean {
+  const key = getStoredKey();
+  return key.length > 0 && key.startsWith('AIza');
+}
+
+export function setApiKey(key: string) {
   localStorage.setItem('fuad_badini_key', JSON.stringify({ k: key }));
 }
 
-export function hasBadiniKey(): boolean {
-  return getBadiniKey().length > 0;
-}
-
-// Cache (max 24h)
+// Cache (max 24h, max 200 Einträge)
 function getCache(): CacheStore {
   try { return JSON.parse(localStorage.getItem('fuad_krd_cache') || '{}'); }
   catch { return {}; }
@@ -32,7 +38,6 @@ function getCache(): CacheStore {
 function setCache(key: string, text: string) {
   const cache = getCache();
   cache[key] = { text, time: Date.now() };
-  // Alte Einträge löschen (>24h)
   const cutoff = Date.now() - 86400000;
   const entries = Object.entries(cache).filter(([, v]) => v.time > cutoff);
   if (entries.length > 200) entries.splice(0, entries.length - 200);
@@ -42,41 +47,23 @@ function setCache(key: string, text: string) {
   catch { /* ignore */ }
 }
 
-// Gemeinsame Wörterbuch-Übersetzung (funktioniert OHNE API-Key)
+// Gemeinsames Wörterbuch (funktioniert OHNE API-Key)
 const WORD_DICT: Record<string, string> = {
-  'The': '', 'a': '', 'an': '', 'and': 'و', 'of': '', 'in': 'لە',
-  'to': 'بۆ', 'with': 'لەگەڵ', 'for': 'بۆ', 'on': 'لەسەر',
-  'at': 'لە', 'by': 'لەلایەن', 'from': 'لە', 'his': '', 'her': '',
-  'my': '', 'your': '', 'our': '', 'its': '', 'the': '', 'A': '', 'An': '',
-  'Love': 'خۆشەویستی', 'Story': 'چیرۆک', 'World': 'جیهان', 'Day': 'ڕۆژ',
-  'Night': 'شەو', 'Man': 'پیاو', 'Woman': 'ژن', 'Child': 'منداڵ',
-  'King': 'پاشا', 'Queen': 'شاژن', 'Lord': 'خاوەن', 'War': 'جەنگ',
-  'Peace': 'ئاشتی', 'Life': 'ژیان', 'Death': 'مردن', 'Time': 'کات',
-  'Heart': 'دڵ', 'Soul': 'ڕۆح', 'Blood': 'خوێن', 'Fire': 'ئاگر',
-  'Water': 'ئاو', 'Dark': 'تاریک', 'Light': 'ڕووناک', 'Shadow': 'سێبەر',
-  'Dream': 'خەون', 'Song': 'گۆرانی', 'Book': 'کتێب', 'Game': 'یاری',
-  'Secret': 'نهێنی', 'Truth': 'ڕاستی', 'Lies': 'درۆ',
-  'Last': 'دواهەمین', 'First': 'یەکەم', 'New': 'نوێ', 'Old': 'کۆن',
-  'Great': 'مەزن', 'Little': 'بچووک', 'Big': 'گەورە', 'Good': 'باش',
-  'Bad': 'خراپ', 'Beautiful': 'جوان', 'Young': 'گەنج', 'Free': 'ئازاد',
-  'Dead': 'مردوو', 'Alive': 'زیندوو', 'Real': 'ڕاستەقینە',
-  'American': 'ئەمریکی', 'English': 'ئینگلیزی', 'French': 'فەرەنسی',
-  'German': 'ئەڵمانی', 'Italian': 'ئیتاڵی', 'Spanish': 'ئیسپانی',
-  'Chinese': 'چینی', 'Japanese': 'ژاپۆنی', 'Korean': 'کۆری',
-  'Indian': 'هیندی', 'Arabian': 'عەرەبی', 'Turkish': 'تورکی',
-  'House': 'ماڵ', 'Home': 'ماڵەوە', 'City': 'شار', 'Kingdom': 'شانشین',
-  'Mountain': 'چیا', 'River': 'ڕووبار', 'Sea': 'دەریا', 'Island': 'دوورگە',
-  'Forest': 'دارستان', 'Garden': 'باخ', 'Castle': 'قەڵا', 'Tower': 'بورج',
-  'Bridge': 'پرد', 'Road': 'ڕێگا', 'Street': 'شەقام', 'School': 'قوتابخانە',
-  'Hospital': 'نەخۆشخانە', 'Prison': 'زیندان', 'Church': 'کڵێسا',
-  'Temple': 'پەرستگا', 'Hotel': 'وتێل', 'Restaurant': 'ڕێستۆرانت',
-  'Summer': 'هاوین', 'Winter': 'زستان', 'Spring': 'بەهار', 'Fall': 'پاییز',
-  'Morning': 'بەیانی', 'Evening': 'ئێوارە', 'Midnight': 'نیوەشەو',
-  'Family': 'خێزان', 'Father': 'باوک', 'Mother': 'دایک', 'Brother': 'برا',
-  'Sister': 'خوشک', 'Son': 'کوڕ', 'Daughter': 'کچ', 'Friend': 'هاوڕێ',
+  'and': 'و', 'in': 'لە', 'to': 'بۆ', 'with': 'لەگەڵ', 'for': 'بۆ',
+  'from': 'لە', 'Love': 'خۆشەویستی', 'Story': 'چیرۆک', 'World': 'جیهان',
+  'Day': 'ڕۆژ', 'Night': 'شەو', 'Man': 'پیاو', 'Woman': 'ژن',
+  'King': 'پاشا', 'Queen': 'شاژن', 'War': 'جەنگ', 'Peace': 'ئاشتی',
+  'Life': 'ژیان', 'Death': 'مردن', 'Time': 'کات', 'Heart': 'دڵ',
+  'Blood': 'خوێن', 'Fire': 'ئاگر', 'Water': 'ئاو', 'Dark': 'تاریک',
+  'Light': 'ڕووناک', 'Dream': 'خەون', 'Song': 'گۆرانی', 'Secret': 'نهێنی',
+  'Truth': 'ڕاستی', 'Last': 'دواهەمین', 'First': 'یەکەم', 'New': 'نوێ',
+  'Old': 'کۆن', 'Great': 'مەزن', 'Good': 'باش', 'Bad': 'خراپ',
+  'House': 'ماڵ', 'Home': 'ماڵەوە', 'City': 'شار', 'Sea': 'دەریا',
+  'Family': 'خێزان', 'Father': 'باوک', 'Mother': 'دایک', 'Friend': 'هاوڕێ',
+  'Summer': 'هاوین', 'Winter': 'زستان', 'Spring': 'بەهار',
+  'The': '', 'a': '', 'an': '', 'of': '', 'the': '', 'A': '', 'An': '',
 };
 
-// Übersetze einzelnes Wort mit Wörterbuch
 function simpleTranslate(text: string): string {
   const words = text.split(' ');
   const translated = words.map(w => {
@@ -88,76 +75,60 @@ function simpleTranslate(text: string): string {
   return translated.filter(Boolean).join(' ').trim() || text;
 }
 
-// Haupt-Übersetzungsfunktion
+// Übersetzung via Gemini-Proxy
+async function geminiTranslate(text: string, apiKey: string): Promise<string | null> {
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000);
+    
+    const res = await fetch(GEMINI_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        text: text,
+        languageFrom: 'en',
+        languageTo: 'krd',
+        apiKey: apiKey,
+      }),
+    });
+    
+    clearTimeout(timeout);
+    
+    if (res.ok) {
+      const data = await res.json();
+      return data.translatedText || data.translation || null;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+// Hauptfunktion: Titel übersetzen
 export async function translateTitle(text: string): Promise<string> {
   if (!text || text.length < 2) return text;
   
-  const cacheKey = `t:${text}`;
+  const cacheKey = `krd:${text}`;
   const cache = getCache();
   if (cache[cacheKey]) return cache[cacheKey].text;
   
-  const apiKey = getBadiniKey();
+  const apiKey = getStoredKey();
   
-  if (apiKey) {
-    try {
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 8000);
-      
-      const res = await fetch(BADINI_API, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-        },
-        body: JSON.stringify({
-          text: text,
-          languageFrom: 'en',
-          languageTo: 'krd',
-        }),
-      });
-      
-      clearTimeout(timeout);
-      
-      if (res.ok) {
-        const data = await res.json();
-        const translated = data.translatedText || data.translation || '';
-        if (translated && translated !== text) {
-          setCache(cacheKey, translated);
-          return translated;
-        }
-      }
-    } catch {
-      // Fallback to simple translation
+  // Mit API-Key (Gemini)
+  if (apiKey.startsWith('AIza')) {
+    const result = await geminiTranslate(text, apiKey);
+    if (result && result !== text) {
+      setCache(cacheKey, result);
+      return result;
     }
   }
   
-  // Fallback: Wörterbuch-Übersetzung
+  // Fallback: Wörterbuch
   const simple = simpleTranslate(text);
-  if (simple !== text) {
+  if (simple !== text && simple.length > 0) {
     setCache(cacheKey, simple);
     return simple;
   }
   
   return text;
-}
-
-// Batch-Übersetzung für mehrere Titel
-export async function translateTitles(titles: { id: number; title: string; type: string }[]): Promise<Record<string, string>> {
-  const result: Record<string, string> = {};
-  const apiKey = getBadiniKey();
-  
-  // Mit API-Key: Einzeln übersetzen
-  if (apiKey) {
-    for (const item of titles) {
-      result[`${item.type}_${item.id}`] = await translateTitle(item.title);
-    }
-    return result;
-  }
-  
-  // Ohne API-Key: Wörterbuch
-  for (const item of titles) {
-    const t = simpleTranslate(item.title);
-    result[`${item.type}_${item.id}`] = t !== item.title ? t : item.title;
-  }
-  return result;
 }
