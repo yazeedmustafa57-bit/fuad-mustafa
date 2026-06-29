@@ -1,14 +1,9 @@
-import React, { useState, useCallback, useEffect, createContext, useContext } from 'react';
-import { t } from './i18n';
-import type { Language } from './i18n';
+import React, { useState, useCallback, useEffect } from 'react';
 import Header from './components/Header';
 import ContentGrid from './pages/ContentGrid';
 import WatchPage from './pages/WatchPage';
 import SportPage from './pages/SportPage';
 import AdblockInfo from './pages/AdblockInfo';
-
-const LangContext = createContext<{ lang: Language; setLang: (l: Language) => void }>({ lang: 'de', setLang: () => {} });
-export const useLang = () => useContext(LangContext);
 
 type Page = 'home' | 'movies' | 'series' | 'search' | 'sport' | 'settings';
 
@@ -16,7 +11,6 @@ const App: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<Page>('home');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedItem, setSelectedItem] = useState<any>(null);
-  const [lang, setLang] = useState<Language>('de');
   const [adBlockActive, setAdBlockActive] = useState(false);
   const [showAdModal, setShowAdModal] = useState(false);
 
@@ -70,16 +64,13 @@ const App: React.FC = () => {
 
   if (selectedItem) {
     return (
-      <LangContext.Provider value={{ lang, setLang }}>
       <div className="app">
         <WatchPage item={selectedItem} onBack={() => setSelectedItem(null)} />
       </div>
-      </LangContext.Provider>
     );
   }
 
   return (
-      <LangContext.Provider value={{ lang, setLang }}>
     <div className="app">
       <Header
         onSearch={handleSearch}
@@ -92,18 +83,18 @@ const App: React.FC = () => {
             <section className="hero-section">
               <div className="hero-bg" />
               <div className="hero-content">
-                <div className="hero-badge">{t('hero.welcome', lang)}</div>
+                <div className="hero-badge">Willkommen bei</div>
                 <h1 className="hero-title">Fuad Mustafa</h1>
-                <p className="hero-subtitle">{t('hero.subtitle', lang)}</p>
+                <p className="hero-subtitle">Stream & Watch Movies & TV Series</p>
                 <div className="hero-actions">
                   <button className="hero-btn hero-btn-primary" onClick={() => handleNavigate('movies')}>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none">
                       <polygon points="5 3 19 12 5 21 5 3"/>
                     </svg>
-                    {t('hero.movies', lang)}
+                    Filme entdecken
                   </button>
                   <button className="hero-btn hero-btn-secondary" onClick={() => handleNavigate('series')}>
-                    {t('hero.series', lang)}
+                    Serien entdecken
                   </button>
                   <button
                     className={`hero-btn hero-btn-adblock ${adBlockActive ? 'active' : ''}`}
@@ -112,7 +103,7 @@ const App: React.FC = () => {
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
                     </svg>
-                    {adBlockActive ? t('hero.adblock.active', lang) : t('hero.adblock', lang)}
+                    {adBlockActive ? '✓ Werbeschutz an' : '🔇 Werbung blockieren'}
                   </button>
                 </div>
               </div>
@@ -123,7 +114,7 @@ const App: React.FC = () => {
               <div className="adblock-modal-overlay" onClick={() => setShowAdModal(false)}>
                 <div className="adblock-modal" onClick={(e) => e.stopPropagation()}>
                   <div className="adblock-modal-icon">🛡️</div>
-                  <h3 className="adblock-modal-title">{t('modal.title', lang)}</h3>
+                  <h3 className="adblock-modal-title">Werbeschutz aktiv!</h3>
                   <p className="adblock-modal-text">
                     Popup-Blocker und Ad-Blocking sind aktiv. 
                     Für kompletten Werbeschutz auf dem ganzen Gerät 
@@ -131,7 +122,7 @@ const App: React.FC = () => {
                   </p>
                   <div className="adblock-modal-actions">
                     <button className="hero-btn hero-btn-primary" onClick={() => { setShowAdModal(false); handleNavigate('settings'); }}>
-                      {t('modal.settings', lang)}
+                      DNS-Anleitung öffnen
                     </button>
                     <button className="hero-btn hero-btn-secondary" onClick={() => setShowAdModal(false)}>
                       Schließen
@@ -143,8 +134,8 @@ const App: React.FC = () => {
 
             <section className="section">
               <div className="section-header">
-                <h2 className="section-title">{t('section.trending', lang)}</h2>
-                <button className="section-link" onClick={() => handleNavigate('movies')}>{t('section.showAll', lang)}</button>
+                <h2 className="section-title">Trending</h2>
+                <button className="section-link" onClick={() => handleNavigate('movies')}>Alle anzeigen →</button>
               </div>
               <ContentGrid type="trending" onSelect={handleSelect} />
           {/* DNS Werbeblocker Banner */}
@@ -152,10 +143,10 @@ const App: React.FC = () => {
             <div className="dns-banner-content">
               <span className="dns-banner-icon">🔇</span>
               <div className="dns-banner-text">
-                <strong>{t('dns.title', lang)}</strong>
-                <p>{t('dns.instruction', lang)} <code>dns.adguard.com</code></p>
+                <strong>Werbung blockieren?</strong>
+                <p>Auf Android: Einstellungen → Private DNS → <code>dns.adguard.com</code></p>
               </div>
-              <button className="dns-banner-btn" onClick={() => handleNavigate('settings')}>{t('dns.button', lang)}</button>
+              <button className="dns-banner-btn" onClick={() => handleNavigate('settings')}>Anleitung</button>
             </div>
           </div>
             </section>
@@ -180,12 +171,11 @@ const App: React.FC = () => {
             </div>
             <span>Fuad Mustafa</span>
           </div>
-          <p className="footer-powered">{t('footer.powered', lang)}</p>
-          <p className="footer-copy">{t('footer.copyright', lang)}</p>
+          <p className="footer-powered">Powered by Fuad Mustafa</p>
+          <p className="footer-copy">© 2024 Fuad Mustafa. All rights reserved.</p>
         </div>
       </footer>
     </div>
-      </LangContext.Provider>
   );
 };
 

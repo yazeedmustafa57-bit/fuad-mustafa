@@ -221,62 +221,6 @@ const AdblockInfo: React.FC = () => {
         💡 Einmal eingerichtet – dauerhaft werbefrei. 
         Funktioniert auf Android, iPhone, Windows und Mac.
       </p>
-
-      {/* === Badini API Key === */}
-      <div style={{ marginTop: '48px', padding: '24px', background: 'var(--bg-card)', borderRadius: '12px', border: '1px solid var(--border)' }}>
-        <h2 style={{ fontSize: '1.3rem', fontWeight: 700, marginBottom: '8px', fontFamily: 'Playfair Display, serif' }}>🌐 Badini Übersetzung</h2>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '16px', lineHeight: 1.6 }}>
-          Gib deinen Badini API-Key ein, um Filmtitel und Beschreibungen automatisch ins Kurdische (Badini) zu übersetzen.
-        </p>
-        <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
-          <input
-            type="text"
-            id="badini-key-input"
-            defaultValue={(() => { try { const d = localStorage.getItem('fuad_badini_key'); return d ? (JSON.parse(d).k || '') : ''; } catch { return ''; } })()}
-            placeholder="Badini API-Key eingeben..."
-            style={{
-              flex: 1,
-              background: 'rgba(255,255,255,0.06)',
-              border: '1px solid var(--border)',
-              borderRadius: '8px',
-              padding: '10px 14px',
-              color: 'var(--text-primary)',
-              fontSize: '0.9rem',
-              fontFamily: 'monospace',
-            }}
-          />
-          <button
-            onClick={() => {
-              const input = document.getElementById('badini-key-input') as HTMLInputElement;
-              if (input && input.value.trim()) {
-                localStorage.setItem('fuad_badini_key', JSON.stringify({ k: input.value.trim() }));
-                input.style.borderColor = '#22c55e';
-                setTimeout(() => { input.style.borderColor = ''; }, 2000);
-                alert('✅ API-Key gespeichert!');
-              }
-            }}
-            style={{
-              background: 'var(--accent-red)',
-              color: '#fff',
-              border: 'none',
-              padding: '10px 20px',
-              borderRadius: '8px',
-              fontSize: '0.85rem',
-              fontWeight: 600,
-              cursor: 'pointer',
-              fontFamily: 'inherit',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            💾 Speichern
-          </button>
-        </div>
-        <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>
-          Nach dem Speichern: Seite neuladen und auf <strong>🏳️KRD</strong> umschalten.
-          <br />
-          Key bekommst du auf: <a href="https://translator-site-five.vercel.app" target="_blank" rel="noopener" style={{ color: 'var(--accent-gold)' }}>translator-site-five.vercel.app</a>
-        </p>
-      </div>
     </div>
   );
 };

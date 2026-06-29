@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { getMovieDetails, getTVShowDetails, getImageUrl } from '../api/tmdb';
-import { useLang } from '../App';
-import { t } from '../i18n';
 
 interface WatchPageProps {
   item: any;
@@ -19,11 +17,9 @@ const EMBED_SOURCES = [
 ];
 
 const WatchPage: React.FC<WatchPageProps> = ({ item, onBack }) => {
-  const { lang } = useLang();
   const [details, setDetails] = useState<any>(null);
   const [_loading, setLoading] = useState(true);
   const [serverIndex, setServerIndex] = useState(0);
-  const serverNames = [t('watch.server1', lang), t('watch.server2', lang), t('watch.server3', lang)];
   const [playerReady, setPlayerReady] = useState(false);
 
   const id = item.id;
@@ -70,7 +66,7 @@ const WatchPage: React.FC<WatchPageProps> = ({ item, onBack }) => {
                 <span key={g.id} className="watch-genre">{g.name}</span>
               ))}
               {details.runtime && <span>{Math.floor(details.runtime / 60)}h {details.runtime % 60}min</span>}
-              {details.number_of_seasons && <span>{details.number_of_seasons} {t('watch.seasons', lang)}</span>}
+              {details.number_of_seasons && <span>{details.number_of_seasons} Staffeln</span>}
               {details.vote_average > 0 && (
                 <span className="watch-rating">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="#f5c518" stroke="none">
@@ -86,14 +82,14 @@ const WatchPage: React.FC<WatchPageProps> = ({ item, onBack }) => {
 
       <div className="watch-player-section">
         <div className="server-select">
-          <span className="server-label">{t('watch.server', lang)}</span>
-          {EMBED_SOURCES.map((_, i) => (
+          <span className="server-label">Server:</span>
+          {EMBED_SOURCES.map((s, i) => (
             <button
               key={i}
               className={`server-btn ${i === serverIndex ? 'active' : ''}`}
               onClick={() => setServerIndex(i)}
             >
-              {serverNames[i]}
+              {s.name}
             </button>
           ))}
         </div>
@@ -102,7 +98,7 @@ const WatchPage: React.FC<WatchPageProps> = ({ item, onBack }) => {
           {!playerReady ? (
             <div className="player-loading">
               <div className="loader-ring"/>
-              <span>{t('watch.loading', lang)}</span>
+              <span>Player wird geladen...</span>
             </div>
           ) : null}
           <iframe
@@ -117,7 +113,7 @@ const WatchPage: React.FC<WatchPageProps> = ({ item, onBack }) => {
 
         {details?.overview && (
           <div className="watch-overview">
-            <h3>{t('watch.about', lang)} {title}</h3>
+            <h3>Über {title}</h3>
             <p>{details.overview}</p>
           </div>
         )}

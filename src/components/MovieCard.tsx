@@ -1,7 +1,5 @@
 import React from 'react';
 import { getImageUrl } from '../api/tmdb';
-import { useLang } from '../App';
-import { t } from '../i18n';
 
 interface MovieCardProps {
   item: any;
@@ -9,14 +7,11 @@ interface MovieCardProps {
 }
 
 const MovieCard: React.FC<MovieCardProps> = ({ item, onClick }) => {
-  const { lang } = useLang();
-  const title = (lang === 'krd' && item._translatedTitle)
-    ? item._translatedTitle
-    : (item.title || item.name || 'Unknown');
+  const title = item.title || item.name || 'Unknown';
   const date = item.release_date || item.first_air_date || '';
   const year = date ? new Date(date).getFullYear() : '';
   const rating = item.vote_average ? Math.round(item.vote_average * 10) / 10 : 0;
-  const mediaType = item.media_type === 'tv' ? t('media.series', lang) : t('media.movie', lang);
+  const mediaType = item.media_type === 'tv' ? 'Serie' : 'Film';
 
   return (
     <div className="movie-card" onClick={onClick}>
